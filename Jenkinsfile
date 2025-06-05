@@ -22,7 +22,7 @@ pipeline {
 
         stage('Terraform Init & Apply') {
             steps {
-                dir('Flask-App-to-AWS-EKS/terraform') {
+                dir('Flask-App-to-AWS-EKS-with_RDS/terraform') {
                     sh 'terraform init'
                     sh 'terraform apply -auto-approve'
                 }
@@ -31,7 +31,7 @@ pipeline {
 
         stage('Get Outputs from Terraform') {
             steps {
-                dir('Flask-App-to-AWS-EKS/terraform') {
+                dir('Flask-App-to-AWS-EKS-with_RDS/terraform') {
                     script {
                         env.ECR_URI = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                         env.DB_HOST = sh(script: "terraform output -raw rds_endpoint", returnStdout: true).trim()
@@ -47,12 +47,12 @@ pipeline {
             steps {
                 script {
                     sh """
-                        sed -i "s/'host':.*/'host': '\${DB_HOST}',/" Flask-App-to-AWS-EKS/flaskapp/app.py
+                        sed -i "s/'host':.*/'host': '\${DB_HOST}',/" Flask-App-to-AWS-EKS-with_RDS/flaskapp/app.py
                     """
 
                     // This sed replaces the line in a robust way.
                     sh """
-                        sed -i '/name: DB_HOST/{n;s|value: .*|value: "\${DB_HOST}"|}' Flask-App-to-AWS-EKS/deployment-template.yaml
+                        sed -i '/name: DB_HOST/{n;s|value: .*|value: "\${DB_HOST}"|}' Flask-App-to-AWS-EKS-with_RDS/deployment-template.yaml
                     """
                 }
             }
@@ -60,7 +60,7 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                dir('Flask-App-to-AWS-EKS/flaskapp') {
+                dir('Flask-App-to-AWS-EKS-with_RDS/flaskapp') {
                     script {
                         def ecrUri = env.ECR_URI
                         sh """
@@ -75,7 +75,7 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                dir('Flask-App-to-AWS-EKS') {
+                dir('Flask-App-to-AWS-EKS-with_RDS') {
                     script {
                         def ecrUri = env.ECR_URI
                         sh """
