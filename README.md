@@ -1,1 +1,1 @@
-# Flask-App-to-AWS-EKS-with_RDS
+# Flask-App-to-AWS-EKS
