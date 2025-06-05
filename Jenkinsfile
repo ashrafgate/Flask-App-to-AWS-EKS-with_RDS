@@ -22,7 +22,7 @@ pipeline {
 
         stage('Terraform Init & Apply') {
             steps {
-                dir('Flask-App-to-AWS-EKS-with_RDS/terraform') {
+                dir('terraform') {
                     sh 'terraform init'
                     sh 'terraform apply -auto-approve'
                 }
