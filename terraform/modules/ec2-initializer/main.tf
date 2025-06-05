@@ -7,10 +7,13 @@ resource "aws_instance" "init" {
 
   user_data = <<-EOF
               #!/bin/bash
-              apt-get update -y
-              apt-get install -y mysql-client
+              exec > /var/log/user-data.log 2>&1
+              set -x
 
-              mysql -h ${var.rds_endpoint} -u ${var.db_user} -p${var.db_password} -e "
+              apt-get update -y
+              apt-get install -y mysql-client -y
+
+              mysql -h ${var.rds_endpoint} -u ${var.db_user} -p${var.db_password} <<SQL
               CREATE DATABASE IF NOT EXISTS my_product;
               USE my_product;
               CREATE TABLE IF NOT EXISTS products (
@@ -20,7 +23,7 @@ resource "aws_instance" "init" {
                 price DECIMAL(10,2) NOT NULL,
                 image_url VARCHAR(255)
               );
-              "
+              SQL
               EOF
 
   tags = {
