@@ -41,15 +41,6 @@ module "ec2_initializer" {
   db_password        = var.db_password
 }
 
-# ✅ Allow EC2 initializer SG to access RDS SG on port 3306
-resource "aws_security_group_rule" "allow_ec2_initializer_to_rds" {
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  security_group_id        = module.vpc.rds_sg_id               # RDS SG
-  source_security_group_id = module.vpc.eks_node_sg_id                  # EC2 SG used by initializer
-}
 
 resource "aws_key_pair" "eks_key" {
   key_name   = "${var.cluster_name}-key"
