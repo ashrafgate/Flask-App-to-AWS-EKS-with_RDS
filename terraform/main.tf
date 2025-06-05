@@ -34,11 +34,21 @@ module "ec2_initializer" {
   source             = "./modules/ec2-initializer"
   ami_id             = "ami-02521d90e7410d9f0" # Ubuntu AMI in your region
   subnet_id          = module.vpc.private_subnet_ids[0]
-  security_group_id  = module.vpc.rds_init_sg_id
+  security_group_id  = module.vpc.eks_node_sg_id
 
   rds_endpoint       = module.rds.db_instance_endpoint
   db_user            = var.db_username
   db_password        = var.db_password
+}
+
+# ✅ Allow EC2 initializer SG to access RDS SG on port 3306
+resource "aws_security_group_rule" "allow_ec2_initializer_to_rds" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = module.rds.security_group_id               # RDS SG
+  source_security_group_id = module.vpc.eks_node_sg_id                  # EC2 SG used by initializer
 }
 
 resource "aws_key_pair" "eks_key" {

@@ -17,7 +17,7 @@ output "db_instance_endpoint" {
   value = aws_db_instance.this.address
 }
 
-output "security_group_ids" {
-  value       = aws_db_instance.this.vpc_security_group_ids
-  description = "Security group IDs attached to the RDS instance"
+output "security_group_id" {
+  value       = aws_db_instance.this.vpc_security_group_ids[0]
+  description = "First security group ID attached to the RDS instance"
 }
