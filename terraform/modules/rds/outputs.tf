@@ -18,6 +18,6 @@ output "db_instance_endpoint" {
 }
 
 output "security_group_id" {
-  value       = aws_db_instance.this.vpc_security_group_ids[0]
+  value       = tolist(aws_db_instance.this.vpc_security_group_ids)[0]
   description = "First security group ID attached to the RDS instance"
 }
