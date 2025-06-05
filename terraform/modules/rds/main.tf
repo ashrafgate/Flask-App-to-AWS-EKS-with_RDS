@@ -32,23 +32,5 @@ resource "aws_db_instance" "this" {
   parameter_group_name = var.parameter_group_name != "" ? var.parameter_group_name : null
 }
 
-resource "null_resource" "create_products_table" {
-  depends_on = [aws_db_instance.this]
 
-  provisioner "local-exec" {
-    command = <<EOT
-      mysql -h ${aws_db_instance.this.address} \
-            -u ${var.username} -p${var.password} \
-            -e "CREATE DATABASE IF NOT EXISTS my_product; \
-                USE my_product; \
-                CREATE TABLE IF NOT EXISTS products ( \
-                  id INT AUTO_INCREMENT PRIMARY KEY, \
-                  name VARCHAR(255) NOT NULL, \
-                  description TEXT, \
-                  price DECIMAL(10, 2) NOT NULL, \
-                  image_url VARCHAR(255) \
-                );"
-    EOT
-  }
-}
 

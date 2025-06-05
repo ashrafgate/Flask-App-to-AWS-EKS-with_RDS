@@ -17,7 +17,7 @@ module "rds" {
   aws_region         = var.aws_region
   name               = var.cluster_name
   subnet_ids         = module.vpc.private_subnet_ids
-  security_group_ids = [module.vpc.eks_node_sg_id]  # or create separate SG for RDS
+  security_group_ids  = [module.vpc.rds_sg_id]  # or create separate SG for RDS
   db_identifier      = "${var.cluster_name}-db"
   username           = var.db_username
   password           = var.db_password
@@ -47,7 +47,7 @@ resource "aws_security_group_rule" "allow_ec2_initializer_to_rds" {
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  security_group_id        = module.rds.security_group_id               # RDS SG
+  security_group_id        = module.vpc.rds_sg_id               # RDS SG
   source_security_group_id = module.vpc.eks_node_sg_id                  # EC2 SG used by initializer
 }
 

@@ -5,28 +5,11 @@ resource "aws_instance" "init" {
   vpc_security_group_ids      = [var.security_group_id]
   associate_public_ip_address = false
 
-  user_data = <<EOF
-#!/bin/bash
-exec > /var/log/user-data.log 2>&1
-set -x
-
-apt-get update -y
-apt-get install -y mysql-client -y
-
-mysql -h ${var.rds_endpoint} -u ${var.db_user} -p${var.db_password} <<SQL
-CREATE DATABASE IF NOT EXISTS my_product;
-USE my_product;
-CREATE TABLE IF NOT EXISTS products (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  price DECIMAL(10,2) NOT NULL,
-  image_url VARCHAR(255)
-);
-SQL
-
-shutdown -h now
-EOF
+  user_data = templatefile("${path.module}/scripts/init-db.sh.tpl", {
+    rds_endpoint  = var.rds_endpoint,
+    db_user       = var.db_user,
+    db_password   = var.db_password
+  })
 
   tags = {
     Name = "ec2-initializer"
