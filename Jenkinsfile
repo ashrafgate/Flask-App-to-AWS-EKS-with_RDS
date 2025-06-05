@@ -31,7 +31,7 @@ pipeline {
 
         stage('Get Outputs from Terraform') {
             steps {
-                dir('Flask-App-to-AWS-EKS-with_RDS/terraform') {
+                dir('terraform') {
                     script {
                         env.ECR_URI = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                         env.DB_HOST = sh(script: "terraform output -raw rds_endpoint", returnStdout: true).trim()
@@ -47,12 +47,11 @@ pipeline {
             steps {
                 script {
                     sh """
-                        sed -i "s/'host':.*/'host': '\${DB_HOST}',/" Flask-App-to-AWS-EKS-with_RDS/flaskapp/app.py
+                        sed -i "s/'host':.*/'host': '\${DB_HOST}',/" flaskapp/app.py
                     """
 
-                    // This sed replaces the line in a robust way.
                     sh """
-                        sed -i '/name: DB_HOST/{n;s|value: .*|value: "\${DB_HOST}"|}' Flask-App-to-AWS-EKS-with_RDS/deployment-template.yaml
+                        sed -i '/name: DB_HOST/{n;s|value: .*|value: "\${DB_HOST}"|}' deployment-template.yaml
                     """
                 }
             }
@@ -60,7 +59,7 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                dir('Flask-App-to-AWS-EKS-with_RDS/flaskapp') {
+                dir('flaskapp') {
                     script {
                         def ecrUri = env.ECR_URI
                         sh """
@@ -75,17 +74,15 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                dir('Flask-App-to-AWS-EKS-with_RDS') {
-                    script {
-                        def ecrUri = env.ECR_URI
-                        sh """
-                            aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
-                            cp deployment-template.yaml deployment.yaml
-                            sed -i "s|<ECR_IMAGE_PLACEHOLDER>|${ecrUri}:$IMAGE_TAG|g" deployment.yaml
-                            kubectl apply -f deployment.yaml
-                            kubectl apply -f service.yaml
-                        """
-                    }
+                script {
+                    def ecrUri = env.ECR_URI
+                    sh """
+                        aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
+                        cp deployment-template.yaml deployment.yaml
+                        sed -i "s|<ECR_IMAGE_PLACEHOLDER>|${ecrUri}:$IMAGE_TAG|g" deployment.yaml
+                        kubectl apply -f deployment.yaml
+                        kubectl apply -f service.yaml
+                    """
                 }
             }
         }
