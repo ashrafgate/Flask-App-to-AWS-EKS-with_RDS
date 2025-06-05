@@ -14,9 +14,9 @@ pipeline {
             }
         }
 
-        stage('Git Clone') {
+        stage('Checkout') {
             steps {
-                sh 'git clone --branch main https://github.com/ashrafgate/Flask-App-to-AWS-EKS-with_RDS.git'
+                checkout scm
             }
         }
 
