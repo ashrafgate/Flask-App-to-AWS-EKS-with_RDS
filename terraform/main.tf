@@ -30,6 +30,16 @@ module "rds" {
   engine_version    = "8.0"
 }
 
+module "ec2_initializer" {
+  source             = "./modules/ec2-initializer"
+  ami_id             = "ami-02521d90e7410d9f0" # Ubuntu AMI in your region
+  subnet_id          = module.vpc.private_subnet_ids[0]
+  security_group_id  = module.vpc.rds_init_sg_id
+
+  rds_endpoint       = module.rds.db_instance_endpoint
+  db_user            = var.db_username
+  db_password        = var.db_password
+}
 
 resource "aws_key_pair" "eks_key" {
   key_name   = "${var.cluster_name}-key"

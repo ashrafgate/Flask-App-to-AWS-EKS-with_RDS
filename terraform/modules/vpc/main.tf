@@ -132,4 +132,21 @@ resource "aws_security_group" "eks_node_sg" {
     Name = "${var.name}-eks-node-sg"
   }
 }
+# SG for EC2 to connect to RDS (used by ec2-initializer module)
+resource "aws_security_group" "rds_init_sg" {
+  name        = "${var.name}-rds-init-sg"
+  description = "Allow EC2 to connect to RDS on MySQL port"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.name}-rds-init-sg"
+  }
+}
 
