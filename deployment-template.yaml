@@ -21,7 +21,7 @@ spec:
             - containerPort: 5000
           env:
             - name: DB_HOST
-              value: "database-1.c74044sww1fc.ap-south-1.rds.amazonaws.com"
+              value: "REPLACE_ME_DB_HOST"
             - name: DB_USER
               value: "admin"
             - name: DB_PASSWORD
