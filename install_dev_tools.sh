@@ -66,5 +66,8 @@ sudo ./aws/install
 # Confirm installation
 aws --version
 
+### Install mysql ###
+sudo apt install mysql-client -y
+
 echo "All tools installed successfully."
 echo "You may need to reboot or re-login for Docker group membership to apply."
