@@ -10,3 +10,8 @@ output "ecr_repository_url" {
 output "rds_endpoint" {
   value = module.rds.address
 }
+
+output "db_instance_endpoint" {
+  value = aws_db_instance.this.address
+}
+
