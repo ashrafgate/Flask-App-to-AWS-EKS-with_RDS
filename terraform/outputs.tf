@@ -11,7 +11,7 @@ output "rds_endpoint" {
   value = module.rds.address
 }
 
-output "db_instance_endpoint" {
-  value = aws_db_instance.this.address
-}
 
+output "db_instance_endpoint" {
+  value = module.rds.db_instance_endpoint  # ✅ Correct
+}
