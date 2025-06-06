@@ -21,3 +21,7 @@ output "security_group_id" {
   value       = tolist(aws_db_instance.this.vpc_security_group_ids)[0]
   description = "First security group ID attached to the RDS instance"
 }
+
+output "address" {
+  value = aws_db_instance.main.address
+}
