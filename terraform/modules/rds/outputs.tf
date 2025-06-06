@@ -23,5 +23,6 @@ output "security_group_id" {
 }
 
 output "address" {
-  value = aws_db_instance.main.address
+  value = aws_db_instance.this.address
 }
+
