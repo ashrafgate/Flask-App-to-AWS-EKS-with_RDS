@@ -135,15 +135,15 @@ resource "aws_security_group" "eks_node_sg" {
 # SG for EC2 to connect to RDS (used by ec2-initializer module)
 resource "aws_security_group" "rds_sg" {
   name        = "${var.name}-rds-sg"
-  description = "Allow MySQL access from EC2 initializer SG"
+  description = "Allow MySQL access from EC2 initializer"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.eks_node_sg.id]
-    description     = "Allow MySQL from EC2 initializer"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    self        = true  # ✅ Allows access from instances using this same SG (EC2 initializer)
+    description = "Allow MySQL from EC2 initializer"
   }
 
   egress {
@@ -151,11 +151,13 @@ resource "aws_security_group" "rds_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
   }
 
   tags = {
     Name = "${var.name}-rds-sg"
   }
 }
+
 
 
