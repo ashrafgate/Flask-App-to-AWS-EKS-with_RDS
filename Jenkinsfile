@@ -34,7 +34,7 @@ pipeline {
                 dir('terraform') {
                     script {
                         env.ECR_URI = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
-                        def rawDbHost = sh(script: "terraform output -raw address", returnStdout: true).trim()
+                        def rawDbHost = sh(script: "terraform output -raw rds_endpoint", returnStdout: true).trim()
                         env.DB_HOST = rawDbHost.tokenize(':')[0]  // removes :3306 if present
 
                         echo "ECR URI: ${env.ECR_URI}"
