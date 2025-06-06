@@ -34,7 +34,7 @@ module "ec2_initializer" {
   source             = "./modules/ec2-initializer"
   ami_id             = "ami-02521d90e7410d9f0" # Ubuntu AMI in your region
   subnet_id          = module.vpc.private_subnet_ids[0]
-  security_group_id  = [module.vpc.rds_sg_id]
+  security_group_id  = module.vpc.rds_sg_id
 
   rds_endpoint       = module.rds.db_instance_endpoint
   db_user            = var.db_username
