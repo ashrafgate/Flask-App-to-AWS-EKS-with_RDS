@@ -2,6 +2,10 @@
 exec > /var/log/user-data.log 2>&1
 set -x
 
+# Update and install MySQL client
+sudo apt update -y
+sudo apt install -y mysql-client
+
 # Wait for RDS to be ready (adjust as needed)
 sleep 60
 
