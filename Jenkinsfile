@@ -46,10 +46,12 @@ pipeline {
         stage('Update app.py & deployment-template.yaml') {
             steps {
                 script {
+                    // Replace DB host in Flask app config
                     sh """
                         sed -i "s/'host':.*/'host': '\${DB_HOST}',/" flaskapp/app.py
                     """
 
+                    // Replace DB_HOST env var in deployment YAML
                     sh """
                         sed -i '/name: DB_HOST/{n;s|value: .*|value: "\${DB_HOST}"|}' deployment-template.yaml
                     """
