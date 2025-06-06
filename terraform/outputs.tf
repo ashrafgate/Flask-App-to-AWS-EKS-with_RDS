@@ -7,6 +7,6 @@ output "ecr_repository_url" {
 #  value = module.rds.db_endpoint
 #}
 
-output "rds_hostname" {
+output "address" {
   value = module.rds.address
 }
