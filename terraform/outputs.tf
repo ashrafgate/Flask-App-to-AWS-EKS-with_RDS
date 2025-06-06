@@ -8,5 +8,5 @@ output "ecr_repository_url" {
 #}
 
 output "rds_hostname" {
-  value = aws_db_instance.main.address # returns only the hostname (no port)
+  value = module.rds.address
 }
