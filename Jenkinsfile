@@ -34,10 +34,11 @@ pipeline {
                 dir('terraform') {
                     script {
                         env.ECR_URI = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
-                        env.DB_HOST = sh(script: "terraform output -raw rds_endpoint", returnStdout: true).trim()
+                        def rawDbHost = sh(script: "terraform output -raw rds_endpoint", returnStdout: true).trim()
+                        env.DB_HOST = rawDbHost.tokenize(':')[0]  // removes :3306 if present
 
                         echo "ECR URI: ${env.ECR_URI}"
-                        echo "RDS Endpoint: ${env.DB_HOST}"
+                        echo "RDS Host: ${env.DB_HOST}"
                     }
                 }
             }
@@ -46,14 +47,14 @@ pipeline {
         stage('Update app.py & deployment-template.yaml') {
             steps {
                 script {
-                    // Replace DB host in Flask app config
+                    // Update DB host in Flask app config
                     sh """
-                        sed -i "s/'host':.*/'host': '\${DB_HOST}',/" flaskapp/app.py
+                        sed -i "s/'host':.*/'host': '${DB_HOST}',/" flaskapp/app.py
                     """
 
-                    // Replace DB_HOST env var in deployment YAML
+                    // Update DB_HOST env var in deployment YAML
                     sh """
-                        sed -i '/name: DB_HOST/{n;s|value: .*|value: "\${DB_HOST}"|}' deployment-template.yaml
+                        sed -i '/name: DB_HOST/{n;s|value: .*|value: \"${DB_HOST}\"|}' deployment-template.yaml
                     """
                 }
             }
@@ -65,9 +66,9 @@ pipeline {
                     script {
                         def ecrUri = env.ECR_URI
                         sh """
-                            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin ${ecrUri}
-                            docker build -t ${ecrUri}:$IMAGE_TAG .
-                            docker push ${ecrUri}:$IMAGE_TAG
+                            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ecrUri
+                            docker build -t $ecrUri:$IMAGE_TAG .
+                            docker push $ecrUri:$IMAGE_TAG
                         """
                     }
                 }
@@ -81,7 +82,7 @@ pipeline {
                     sh """
                         aws eks update-kubeconfig --name $CLUSTER_NAME --region $REGION
                         cp deployment-template.yaml deployment.yaml
-                        sed -i "s|<ECR_IMAGE_PLACEHOLDER>|${ecrUri}:$IMAGE_TAG|g" deployment.yaml
+                        sed -i "s|<ECR_IMAGE_PLACEHOLDER>|$ecrUri:$IMAGE_TAG|g" deployment.yaml
                         kubectl apply -f deployment.yaml
                         kubectl apply -f service.yaml
                     """
